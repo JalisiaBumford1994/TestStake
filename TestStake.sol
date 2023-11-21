@@ -49,5 +49,13 @@ function stake(uint256 _amount) external {
 
         emit Unstaked(msg.sender, _amount);
     }
+function calculateRewards(address _staker, uint256 _amount) internal view returns (uint256) {
+        // Example: Simple linear rewards based on the staking duration
+        uint256 duration = block.timestamp - lastStakeTime[_staker];
+        return (_amount * duration) / 1 days;
+    }
 
+    function getStakingDetails(address _staker) external view returns (uint256, uint256, uint256) {
+        return (stakedBalances[_staker], totalStaked, lastStakeTime[_staker]);
+    }
 }
