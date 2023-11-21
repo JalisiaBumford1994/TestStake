@@ -58,4 +58,19 @@ function calculateRewards(address _staker, uint256 _amount) internal view return
     function getStakingDetails(address _staker) external view returns (uint256, uint256, uint256) {
         return (stakedBalances[_staker], totalStaked, lastStakeTime[_staker]);
     }
+function withdrawRewards() external {
+        // Example: Withdraw accumulated rewards
+        uint256 rewards = calculateRewards(msg.sender, 0);
+        require(rewards > 0, "No rewards to withdraw");
+
+        require(stakingToken.transfer(msg.sender, rewards), "Token transfer failed");
+    }
+
+    function withdrawUnstakedTokens() external onlyOwner {
+        // Example: Withdraw unstaked tokens (not including rewards)
+        uint256 unstakedTokens = stakingToken.balanceOf(address(this)) - totalStaked;
+        require(unstakedTokens > 0, "No unstaked tokens to withdraw");
+
+        require(stakingToken.transfer(owner, unstakedTokens), "Token transfer failed");
+    }
 }
