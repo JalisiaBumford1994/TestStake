@@ -22,6 +22,32 @@ contract StakingPool {
         owner = msg.sender;
         stakingToken = IERC20(_stakingToken);
     }
+function stake(uint256 _amount) external {
+        require(_amount > 0, "Stake amount must be greater than 0");
+        require(stakingToken.transferFrom(msg.sender, address(this), _amount), "Token transfer failed");
 
+        stakedBalances[msg.sender] += _amount;
+        totalStaked += _amount;
+        lastStakeTime[msg.sender] = block.timestamp;
+
+        emit Staked(msg.sender, _amount);
+    }
+
+    function unstake(uint256 _amount) external {
+        require(_amount > 0, "Unstake amount must be greater than 0");
+        require(stakedBalances[msg.sender] >= _amount, "Insufficient staked balance");
+        
+        // Calculate the rewards based on the staking duration (example: simple linear rewards)
+        uint256 rewards = calculateRewards(msg.sender, _amount);
+
+        stakedBalances[msg.sender] -= _amount;
+        totalStaked -= _amount;
+        lastStakeTime[msg.sender] = block.timestamp;
+
+        // Transfer staked amount and rewards back to the staker
+        require(stakingToken.transfer(msg.sender, _amount + rewards), "Token transfer failed");
+
+        emit Unstaked(msg.sender, _amount);
+    }
 
 }
